@@ -14,6 +14,10 @@ export class Url extends Document {
 
   @Prop()
   topic: string;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }
 
 export const UrlSchema = SchemaFactory.createForClass(Url);

@@ -5,6 +5,4 @@ export class CreateUrlDto {
   longUrl: string;
   @IsString()
   topic: string;
-  @IsString()
-  alias: string;
 }

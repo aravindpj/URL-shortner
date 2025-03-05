@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Url, UrlSchema } from './entities/url.entities';
 import { UrlController } from './url.controller';
 import { UrlService } from './url.service';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UrlService } from './url.service';
         schema: UrlSchema,
       },
     ]),
+    RedisModule,
   ],
   controllers: [UrlController],
   providers: [UrlService],
