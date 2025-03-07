@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
 import { createClient } from 'redis';
 
 @Module({
@@ -21,7 +21,7 @@ import { createClient } from 'redis';
 
         return client;
       },
-      inject: [ConfigService],
+      // inject: [ConfigService],
     },
   ],
   exports: ['REDIS_CLIENT'],
