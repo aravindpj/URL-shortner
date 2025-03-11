@@ -11,6 +11,7 @@ import { customAlphabet } from 'nanoid';
 import { Request } from 'express';
 import { RedisClientType } from 'redis';
 import { getUrlId } from 'src/common/utils/key';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class UrlService {
@@ -23,6 +24,7 @@ export class UrlService {
   constructor(
     @Inject('REDIS_CLIENT') private RedisClient: RedisClientType,
     @InjectModel(Url.name) private urlModel: Model<Url>,
+    private analyticsService: AnalyticsService,
   ) {}
 
   async createShortUrl(req: Request, urlPayload: Partial<Url>) {
@@ -43,23 +45,26 @@ export class UrlService {
     return { shortUrl, createdAt: newUrlDoc.createdAt };
   }
 
-  async GetRedirectUrl(shortId: string) {
+  async GetRedirectUrl(shortId: string, analyticsInfo) {
     const urlKey = getUrlId(shortId.toString());
 
-    const cacheUrl = await this.RedisClient.get(urlKey);
+    let longUrl = await this.RedisClient.get(urlKey);
 
-    if (cacheUrl) {
-      return cacheUrl;
+    if (!longUrl) {
+      const result = await this.urlModel
+        .findOne({ shortId: shortId })
+        .select('longUrl createdAt');
+
+      console.log('RESULT', result);
+
+      if (!result) throw new NotFoundException('url not found');
+
+      longUrl = result.longUrl;
+
+      await this.RedisClient.setEx(urlKey, 600, longUrl);
     }
 
-    const result = await this.urlModel
-      .findOne({ shortId: shortId })
-      .select('longUrl createdAt');
-
-    if (!result) throw new NotFoundException('url not found');
-
-    await this.RedisClient.setEx(urlKey, 3600, result.longUrl);
-
-    return result?.longUrl;
+    await this.analyticsService.trackAnalytics(analyticsInfo);
+    return longUrl;
   }
 }

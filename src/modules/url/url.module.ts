@@ -4,6 +4,7 @@ import { Url, UrlSchema } from './entities/url.entities';
 import { UrlController } from './url.controller';
 import { UrlService } from './url.service';
 import { RedisModule } from 'src/redis/redis.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RedisModule } from 'src/redis/redis.module';
       },
     ]),
     RedisModule,
+    AnalyticsModule,
   ],
   controllers: [UrlController],
   providers: [UrlService],
