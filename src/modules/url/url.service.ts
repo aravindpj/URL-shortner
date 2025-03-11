@@ -64,7 +64,7 @@ export class UrlService {
       await this.RedisClient.setEx(urlKey, 600, longUrl);
     }
 
-    await this.analyticsService.trackAnalytics(analyticsInfo);
+    await this.analyticsService.queueTrackVisit(analyticsInfo);
     return longUrl;
   }
 }
