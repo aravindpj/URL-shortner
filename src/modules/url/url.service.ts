@@ -8,12 +8,12 @@ import { Url } from './entities/url.entities';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { customAlphabet } from 'nanoid';
-import { Request } from 'express';
 import { RedisClientType } from 'redis';
 import { getUrlId } from 'src/common/utils/key';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { CacheUrl } from './interfaces/url.cache';
 import { AnalyticsInfo } from './interfaces/url.analytics';
+import { CreateUrl } from './interfaces/url.create';
 
 @Injectable()
 export class UrlService {
@@ -29,7 +29,7 @@ export class UrlService {
     private analyticsService: AnalyticsService,
   ) {}
 
-  async createShortUrl(req: Request, urlPayload: Partial<Url>) {
+  async createShortUrl(urlPayload: CreateUrl) {
     const shortId = urlPayload?.alias || this.generateNewId();
     const urlKey = getUrlId(shortId.toString());
     const existingShortId = await this.urlModel.findOne({ shortId: shortId });
@@ -46,7 +46,7 @@ export class UrlService {
       JSON.stringify({ longUrl: newUrlDoc.longUrl, topic: newUrlDoc.topic }),
     );
 
-    const shortUrl = `${req.protocol}://${req.get('host')}/url/${newUrlDoc.shortId}`;
+    const shortUrl = `${urlPayload.protocol}://${urlPayload.host}/url/${newUrlDoc.shortId}`;
 
     return { shortUrl, createdAt: newUrlDoc.createdAt };
   }

@@ -25,10 +25,10 @@ export class UrlController {
     @Req() req: Request,
   ) {
     createUrlDto.topic = createUrlDto.topic ?? '';
-    const { shortUrl, createdAt } = await this.urlService.createShortUrl(
-      req,
-      createUrlDto,
-    );
+    createUrlDto.protocol = req.protocol ?? '';
+    createUrlDto.host = req.get('host') ?? '';
+    const { shortUrl, createdAt } =
+      await this.urlService.createShortUrl(createUrlDto);
     return {
       message: 'Your short url ready to share',
       shortUrl,
