@@ -13,6 +13,7 @@ import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/url.createDto';
 import { Request } from 'express';
 import { UAParser } from 'ua-parser-js';
+import { AnalyticsInfoDto } from './dto/url.analyticsDto';
 @Controller('url')
 export class UrlController {
   constructor(private urlService: UrlService) {}
@@ -23,6 +24,7 @@ export class UrlController {
     @Body() createUrlDto: CreateUrlDto,
     @Req() req: Request,
   ) {
+    createUrlDto.topic = createUrlDto.topic ?? '';
     const { shortUrl, createdAt } = await this.urlService.createShortUrl(
       req,
       createUrlDto,
@@ -44,11 +46,13 @@ export class UrlController {
     const userAgent = request.headers['user-agent'];
     const parser = new UAParser(userAgent);
     const userAgentInfo = parser.getResult();
-    const analyticsInfo = {
-      ipAddress: request.ip,
-      osName: userAgentInfo.os.name,
-      deviceName: userAgentInfo.device.vendor,
-      browser: userAgentInfo.browser.name,
+
+    const analyticsInfo: AnalyticsInfoDto = {
+      alias: shortId,
+      ipAddress: request.ip ?? 'Unknown',
+      osName: userAgentInfo.os.name ?? 'Unknown',
+      deviceName: userAgentInfo.device.vendor ?? 'Unknown',
+      browser: userAgentInfo.browser.name ?? 'Unknown',
     };
     const originalUrl = await this.urlService.GetRedirectUrl(
       shortId,

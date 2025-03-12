@@ -4,18 +4,20 @@ import { Document } from 'mongoose';
 @Schema({ timestamps: true })
 export class Analytics extends Document {
   @Prop()
-  shortId: string;
+  alias: string;
 
   @Prop()
   totalClicks: number;
 
+  @Prop()
+  ipAddress: string;
   // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   // userId: Types.ObjectId;
 
   // @Prop()
   // uniqueUsers: number;
   @Prop()
-  alias: string;
+  topic: string;
 
   @Prop()
   osName: string;

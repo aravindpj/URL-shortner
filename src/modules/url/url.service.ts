@@ -12,6 +12,8 @@ import { Request } from 'express';
 import { RedisClientType } from 'redis';
 import { getUrlId } from 'src/common/utils/key';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { CacheUrl } from './interfaces/url.cache';
+import { AnalyticsInfo } from './interfaces/url.analytics';
 
 @Injectable()
 export class UrlService {
@@ -38,33 +40,38 @@ export class UrlService {
       );
     const newUrlDoc = await this.urlModel.create({ ...urlPayload, shortId });
 
-    await this.RedisClient.setEx(urlKey, 3600, newUrlDoc.longUrl);
+    await this.RedisClient.setEx(
+      urlKey,
+      3600,
+      JSON.stringify({ longUrl: newUrlDoc.longUrl, topic: newUrlDoc.topic }),
+    );
 
     const shortUrl = `${req.protocol}://${req.get('host')}/url/${newUrlDoc.shortId}`;
 
     return { shortUrl, createdAt: newUrlDoc.createdAt };
   }
 
-  async GetRedirectUrl(shortId: string, analyticsInfo) {
-    const urlKey = getUrlId(shortId.toString());
+  async GetRedirectUrl(shortId: string, analyticsInfo: AnalyticsInfo) {
+    const urlKey = getUrlId(shortId);
 
-    let longUrl = await this.RedisClient.get(urlKey);
-
-    if (!longUrl) {
-      const result = await this.urlModel
-        .findOne({ shortId: shortId })
-        .select('longUrl createdAt');
-
-      console.log('RESULT', result);
-
-      if (!result) throw new NotFoundException('url not found');
-
-      longUrl = result.longUrl;
-
-      await this.RedisClient.setEx(urlKey, 600, longUrl);
+    const cacheUrl = await this.RedisClient.get(urlKey);
+    if (cacheUrl) {
+      const { longUrl, topic } = JSON.parse(cacheUrl) as CacheUrl;
+      analyticsInfo.topic = topic;
+      await this.analyticsService.queueTrackVisit(analyticsInfo);
+      return longUrl;
     }
 
+    const urlDoc = await this.urlModel
+      .findOne({ shortId: shortId })
+      .select('longUrl topic')
+      .lean();
+
+    if (!urlDoc) throw new NotFoundException('URL not found');
+
+    await this.RedisClient.setEx(urlKey, 3600, JSON.stringify(urlDoc));
     await this.analyticsService.queueTrackVisit(analyticsInfo);
-    return longUrl;
+
+    return urlDoc.longUrl;
   }
 }

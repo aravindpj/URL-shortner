@@ -12,7 +12,7 @@ export class AnalyticsService {
     @InjectQueue('analytics') private analyticsQueue: Queue,
   ) {}
 
-  async queueTrackVisit(analyticsInfo) {
+  async queueTrackVisit(analyticsInfo: any) {
     await this.analyticsQueue.add('track-visit', analyticsInfo, {
       attempts: 3, // Retry up to 3 times if fails
       backoff: {
@@ -22,7 +22,7 @@ export class AnalyticsService {
     });
   }
 
-  async trackVisit(analyticsInfo) {
-    return await this.AnalyticsModel.create(analyticsInfo);
+  async trackVisit(analyticsInfo: any) {
+    return this.AnalyticsModel.create(analyticsInfo);
   }
 }

@@ -8,6 +8,6 @@ export class AnalyticsProcessor {
 
   @Process('track-visit')
   async handleTrackVisit(job: Job) {
-    await this.analyticsService.trackVisit(job.data);
+    return this.analyticsService.trackVisit(job.data);
   }
 }
