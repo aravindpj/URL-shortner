@@ -27,6 +27,16 @@ export class Analytics extends Document {
 
   @Prop()
   browser: string;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }
 //automatically generates a Mongoose schema from a TypeScript class (MyClass) using decorators, simplifying schema definition
-export const AnalyticsSchema = SchemaFactory.createForClass(Analytics);
+const AnalyticsSchema = SchemaFactory.createForClass(Analytics);
+
+AnalyticsSchema.index({ alias: 1 });
+AnalyticsSchema.index({ topic: 1 });
+AnalyticsSchema.index({ createdAt: 1 });
+
+export { AnalyticsSchema };
