@@ -13,4 +13,22 @@ export class AnalyticsController {
       doc,
     };
   }
+  @Get('/topic/:topic')
+  async getUrlAnalyticsByTopic(@Param('topic') topic: string) {
+    const doc = await this.analyticsService.getUrlAnalyticsByTopic(topic);
+    return {
+      status: true,
+      message: 'success',
+      doc,
+    };
+  }
+  @Get('/overall')
+  async getUrlAnalyticsOverall() {
+    const doc = await this.analyticsService.getUrlAnalyticsOverall();
+    return {
+      status: true,
+      message: 'success',
+      doc,
+    };
+  }
 }

@@ -1,5 +1,7 @@
 {
   "yaml.schemas": {
-    "https://www.artillery.io/schema.json": []
+    "https://www.artillery.io/schema.json": [
+      "file:///Users/aravind/Desktop/url_shortner/load-test.yml"
+    ]
   }
 }
