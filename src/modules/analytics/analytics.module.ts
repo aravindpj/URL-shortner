@@ -4,7 +4,9 @@ import { AnalyticsController } from './analytics.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Analytics, AnalyticsSchema } from './entities/analytics.entities';
 import { BullModule } from '@nestjs/bull';
-import { AnalyticsProcessor } from './analytics.processor';
+import { ANALYTICS_QUEUE } from './jobs/analytics-constants';
+import { AnalyticsConsumer } from './jobs/analytics-consumer.service';
+import { AnalyticsProcessor } from './jobs/analytics-processor';
 
 @Module({
   imports: [
@@ -12,11 +14,11 @@ import { AnalyticsProcessor } from './analytics.processor';
       { name: Analytics.name, schema: AnalyticsSchema },
     ]),
     BullModule.registerQueue({
-      name: 'analytics',
+      name: ANALYTICS_QUEUE,
     }),
   ],
   controllers: [AnalyticsController],
-  providers: [AnalyticsService, AnalyticsProcessor],
-  exports: [AnalyticsService],
+  providers: [AnalyticsService, AnalyticsConsumer, AnalyticsProcessor],
+  exports: [AnalyticsConsumer],
 })
 export class AnalyticsModule {}

@@ -10,10 +10,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { customAlphabet } from 'nanoid';
 import { RedisClientType } from 'redis';
 import { getUrlId } from 'src/common/utils/key';
-import { AnalyticsService } from '../analytics/analytics.service';
 import { CacheUrl } from './interfaces/url.cache';
 import { AnalyticsInfo } from './interfaces/url.analytics';
 import { CreateUrl } from './interfaces/url.create';
+import { AnalyticsConsumer } from '../analytics/jobs/analytics-consumer.service';
 
 @Injectable()
 export class UrlService {
@@ -26,7 +26,7 @@ export class UrlService {
   constructor(
     @Inject('REDIS_CLIENT') private RedisClient: RedisClientType,
     @InjectModel(Url.name) private urlModel: Model<Url>,
-    private analyticsService: AnalyticsService,
+    private readonly analyticsConsumer: AnalyticsConsumer,
   ) {}
 
   async createShortUrl(urlPayload: CreateUrl) {
@@ -58,7 +58,7 @@ export class UrlService {
     if (cacheUrl) {
       const { longUrl, topic } = JSON.parse(cacheUrl) as CacheUrl;
       analyticsInfo.topic = topic;
-      await this.analyticsService.queueTrackVisit(analyticsInfo);
+      await this.analyticsConsumer.queueTrackVisit(analyticsInfo);
       return longUrl;
     }
 
@@ -70,7 +70,7 @@ export class UrlService {
     if (!urlDoc) throw new NotFoundException('URL not found');
 
     await this.RedisClient.setEx(urlKey, 3600, JSON.stringify(urlDoc));
-    await this.analyticsService.queueTrackVisit(analyticsInfo);
+    await this.analyticsConsumer.queueTrackVisit(analyticsInfo);
 
     return urlDoc.longUrl;
   }
