@@ -4,6 +4,7 @@ import {
   ConfigModule as NestConfigModule,
   ConfigService,
 } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { createClient } from 'redis';
@@ -51,6 +52,20 @@ import { createClient } from 'redis';
           },
         };
       },
+    }),
+
+    //JWT
+
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: () => {
+        return {
+          secret: process.env.JWT_SECRET,
+          signOptions: { expiresIn: '60s' },
+        };
+      },
+      global: true,
+      inject: [ConfigService],
     }),
   ],
   providers: [
