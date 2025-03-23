@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Analytics extends Document {
@@ -11,11 +11,9 @@ export class Analytics extends Document {
 
   @Prop()
   ipAddress: string;
-  // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
-  // userId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  user: Types.ObjectId;
 
-  // @Prop()
-  // uniqueUsers: number;
   @Prop()
   topic: string;
 

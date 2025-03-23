@@ -61,7 +61,7 @@ import { createClient } from 'redis';
       useFactory: () => {
         return {
           secret: process.env.JWT_SECRET,
-          signOptions: { expiresIn: '60s' },
+          signOptions: { expiresIn: '24h' },
         };
       },
       global: true,

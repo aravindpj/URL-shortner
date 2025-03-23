@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Url extends Document {
@@ -8,6 +8,9 @@ export class Url extends Document {
 
   @Prop()
   shortId: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  user: Types.ObjectId;
 
   @Prop()
   alias: string;

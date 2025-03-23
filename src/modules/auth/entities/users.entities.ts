@@ -2,6 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
+// export interface UserMethods {
+//   checkPasswordIsCorrect(password: string): Promise<boolean>;
+// }
+
+// export type UserDocument = HydratedDocument<Users> & UserMethods;
+
 @Schema({ timestamps: true })
 export class Users extends Document {
   @Prop()
@@ -34,11 +40,14 @@ export class Users extends Document {
   createdAt: Date;
 
   updatedAt: Date;
+
+  checkPasswordIsCorrect: (password: string) => Promise<boolean>;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users);
 
 UsersSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const saltOrRounds = 10;
   this.password = await bcrypt.hash(this.password, saltOrRounds);
   this.confirmPassword = '';
@@ -46,8 +55,8 @@ UsersSchema.pre('save', async function (next) {
 });
 
 UsersSchema.methods.checkPasswordIsCorrect = async function (
-  hashPassword: string,
+  this: Users,
   password: string,
-) {
-  return bcrypt.compare(password, hashPassword);
+): Promise<boolean> {
+  return bcrypt.compare(password, this.password);
 };

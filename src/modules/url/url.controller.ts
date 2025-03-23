@@ -8,18 +8,21 @@ import {
   Post,
   Redirect,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/url.createDto';
 import { Request } from 'express';
 import { UAParser } from 'ua-parser-js';
 import { AnalyticsInfoDto } from './dto/url.analyticsDto';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 @Controller('url')
 export class UrlController {
   constructor(private urlService: UrlService) {}
 
   @Post('shorten')
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   async createShortUrl(
     @Body() createUrlDto: CreateUrlDto,
     @Req() req: Request,
@@ -27,6 +30,8 @@ export class UrlController {
     createUrlDto.topic = createUrlDto.topic ?? '';
     createUrlDto.protocol = req.protocol ?? '';
     createUrlDto.host = req.get('host') ?? '';
+    createUrlDto.user = req.user?._id as string;
+
     const { shortUrl, createdAt } =
       await this.urlService.createShortUrl(createUrlDto);
     return {
@@ -36,6 +41,8 @@ export class UrlController {
     };
   }
 
+  // @Public()
+  @UseGuards(AuthGuard)
   @Get(':shortId')
   @Redirect()
   @Header('Cache-Control', 'no-store')
@@ -53,6 +60,7 @@ export class UrlController {
       osName: userAgentInfo.os.name ?? 'Unknown',
       deviceName: userAgentInfo.device.vendor ?? 'Unknown',
       browser: userAgentInfo.browser.name ?? 'Unknown',
+      user: (request.user?._id as string) ?? '',
     };
     const originalUrl = await this.urlService.GetRedirectUrl(
       shortId,

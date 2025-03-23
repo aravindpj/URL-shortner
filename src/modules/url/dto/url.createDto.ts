@@ -12,4 +12,7 @@ export class CreateUrlDto {
   alias: string;
   @IsString()
   host: string;
+  @IsString()
+  @IsOptional()
+  user: string;
 }

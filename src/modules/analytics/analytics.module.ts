@@ -7,6 +7,7 @@ import { BullModule } from '@nestjs/bull';
 import { ANALYTICS_QUEUE } from './jobs/analytics-constants';
 import { AnalyticsConsumer } from './jobs/analytics-consumer.service';
 import { AnalyticsProcessor } from './jobs/analytics-processor';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AnalyticsProcessor } from './jobs/analytics-processor';
     BullModule.registerQueue({
       name: ANALYTICS_QUEUE,
     }),
+    AuthModule,
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService, AnalyticsConsumer, AnalyticsProcessor],

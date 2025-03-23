@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter } from '@bull-board/express';
+import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -21,7 +22,7 @@ async function bootstrap() {
   });
 
   app.use('/admin/queues', serverAdapter.getRouter());
-
+  app.use(cookieParser());
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

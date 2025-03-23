@@ -11,6 +11,10 @@ export class AnalyticsInfoDto {
   osName: string;
 
   @IsString()
+  @IsOptional()
+  user?: string;
+
+  @IsString()
   deviceName: string;
 
   @IsString()
