@@ -1,6 +1,7 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Request } from 'express';
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -25,10 +26,11 @@ export class AnalyticsController {
       doc,
     };
   }
-  @Get('/overall')
+  @Get('user/overall')
   @UseGuards(AuthGuard)
-  async getUrlAnalyticsOverall() {
-    const doc = await this.analyticsService.getUrlAnalyticsOverall();
+  async getUrlAnalyticsOverall(@Req() req: Request) {
+    const user = req.user?._id as string;
+    const doc = await this.analyticsService.getUrlAnalyticsOverall(user);
     return {
       status: true,
       message: 'success',

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,7 @@ import { ANALYTICS_QUEUE } from './jobs/analytics-constants';
 import { AnalyticsConsumer } from './jobs/analytics-consumer.service';
 import { AnalyticsProcessor } from './jobs/analytics-processor';
 import { AuthModule } from '../auth/auth.module';
+import { UrlModule } from '../url/url.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from '../auth/auth.module';
       name: ANALYTICS_QUEUE,
     }),
     AuthModule,
+    forwardRef(() => UrlModule),
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService, AnalyticsConsumer, AnalyticsProcessor],

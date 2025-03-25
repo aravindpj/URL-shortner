@@ -14,7 +14,15 @@ import { CacheUrl } from './interfaces/url.cache';
 import { AnalyticsInfo } from './interfaces/url.analytics';
 import { CreateUrl } from './interfaces/url.create';
 import { AnalyticsConsumer } from '../analytics/jobs/analytics-consumer.service';
-
+// interface Data {
+//   alias?: string; // Alias is optional to prevent destructuring errors
+//   createdBy?: string;
+//   topic: string;
+//   osName: string;
+//   deviceName: string;
+//   browser: string;
+//   ipAddress: string;
+// }
 @Injectable()
 export class UrlService {
   protected nanoid = customAlphabet(
@@ -73,5 +81,8 @@ export class UrlService {
     await this.analyticsConsumer.queueTrackVisit(analyticsInfo);
 
     return urlDoc.longUrl;
+  }
+  async getUrlCreatedUser(id: string) {
+    return this.urlModel.findOne({ shortId: id });
   }
 }

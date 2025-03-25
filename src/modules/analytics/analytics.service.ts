@@ -5,6 +5,8 @@ import { Analytics } from './entities/analytics.entities';
 import { Model } from 'mongoose';
 
 import { addDays, setEndOfDay } from 'src/common/utils/date-utils';
+import { Types } from 'mongoose';
+// import { Type } from 'class-transformer';
 
 @Injectable()
 export class AnalyticsService {
@@ -159,5 +161,96 @@ export class AnalyticsService {
     };
   }
 
-  async getUrlAnalyticsOverall() {}
+  async getUrlAnalyticsOverall(user: string) {
+    const doc = await this.AnalyticsModel.aggregate([
+      {
+        $match: {
+          createdBy: new Types.ObjectId(user),
+        },
+      },
+      {
+        $facet: {
+          totalUrls: [
+            {
+              $group: {
+                _id: '$alias',
+              },
+            },
+            {
+              $count: 'total',
+            },
+          ],
+          totalCount: [
+            {
+              $count: 'totalClicks',
+            },
+          ],
+          clickByDate: [
+            {
+              $match: {
+                createdAt: { $gte: this.seventhDayBefore },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+                },
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                date: '$_id',
+                totalClicks: '$count',
+              },
+            },
+          ],
+          osType: [
+            {
+              $group: {
+                _id: '$osName',
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                os: '$_id',
+                totalClicks: '$count',
+              },
+            },
+          ],
+          deviceType: [
+            {
+              $group: {
+                _id: '$deviceName',
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $project: {
+                deviceName: '$deviceName',
+                totalClicks: '$count',
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          allUrlTotalClicks: {
+            $arrayElemAt: ['$totalCount.totalClicks', 0],
+          },
+          totalUrls: {
+            $arrayElemAt: ['$totalUrls.total', 0],
+          },
+          clickByDate: 1,
+          osType: 1,
+          deviceType: 1,
+        },
+      },
+    ]);
+
+    return { doc };
+  }
 }

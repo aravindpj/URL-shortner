@@ -12,7 +12,7 @@ export class Analytics extends Document {
   @Prop()
   ipAddress: string;
   @Prop({ type: Types.ObjectId, ref: 'User' })
-  user: Types.ObjectId;
+  createdBy: Types.ObjectId;
 
   @Prop()
   topic: string;

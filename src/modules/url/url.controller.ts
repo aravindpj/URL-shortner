@@ -42,7 +42,7 @@ export class UrlController {
   }
 
   // @Public()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':shortId')
   @Redirect()
   @Header('Cache-Control', 'no-store')
