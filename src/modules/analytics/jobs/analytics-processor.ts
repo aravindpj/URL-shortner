@@ -7,14 +7,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Analytics } from '../entities/analytics.entities';
 import { Job } from 'bull';
-import { Inject, forwardRef } from '@nestjs/common';
 import { UrlService } from 'src/modules/url/url.service';
 
 @Processor(ANALYTICS_QUEUE)
 export class AnalyticsProcessor {
   constructor(
     @InjectModel(Analytics.name) private AnalyticsModel: Model<Analytics>,
-    @Inject(forwardRef(() => UrlService))
     private urlService: UrlService,
   ) {}
   @Process(CLICK_TRACK)

@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Url, UrlSchema } from './entities/url.entities';
 import { UrlController } from './url.controller';
@@ -17,7 +17,7 @@ import { AuthModule } from '../auth/auth.module';
     ]),
 
     ConfigModule,
-    forwardRef(() => AnalyticsModule),
+    AnalyticsModule,
     AuthModule,
   ],
   controllers: [UrlController],
