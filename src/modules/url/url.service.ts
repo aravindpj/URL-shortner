@@ -14,15 +14,7 @@ import { CacheUrl } from './interfaces/url.cache';
 import { AnalyticsInfo } from './interfaces/url.analytics';
 import { CreateUrl } from './interfaces/url.create';
 import { AnalyticsConsumer } from '../analytics/jobs/analytics-consumer.service';
-// interface Data {
-//   alias?: string; // Alias is optional to prevent destructuring errors
-//   createdBy?: string;
-//   topic: string;
-//   osName: string;
-//   deviceName: string;
-//   browser: string;
-//   ipAddress: string;
-// }
+
 @Injectable()
 export class UrlService {
   protected nanoid = customAlphabet(
@@ -38,6 +30,7 @@ export class UrlService {
   ) {}
 
   async createShortUrl(urlPayload: CreateUrl) {
+    console.log('API HIT IN CREATE SHORT URL');
     const shortId = urlPayload?.alias || this.generateNewId();
     const urlKey = getUrlId(shortId.toString());
     const existingShortId = await this.urlModel.findOne({ shortId: shortId });
@@ -64,9 +57,12 @@ export class UrlService {
 
     const cacheUrl = await this.RedisClient.get(urlKey);
     if (cacheUrl) {
+      console.log('CASHING HIT ', cacheUrl);
       const { longUrl, topic } = JSON.parse(cacheUrl) as CacheUrl;
       analyticsInfo.topic = topic;
+      console.log('BULL MQ NOT WORKING');
       await this.analyticsConsumer.queueTrackVisit(analyticsInfo);
+      console.log('BULL MQ WORKING');
       return longUrl;
     }
 

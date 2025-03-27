@@ -47,7 +47,8 @@ import { createClient } from 'redis';
       useFactory: () => {
         return {
           redis: {
-            host: 'localhost',
+            //Services can communicate using the service name as the hostname
+            host: 'redis',
             port: 6379,
           },
         };
@@ -72,7 +73,7 @@ import { createClient } from 'redis';
     {
       provide: 'REDIS_CLIENT',
       useFactory: async () => {
-        const client = createClient({});
+        const client = createClient({ url: 'redis://redis:6379' });
 
         client.on('error', (err) => {
           console.error(err);

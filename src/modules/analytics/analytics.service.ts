@@ -6,7 +6,6 @@ import { Model } from 'mongoose';
 
 import { addDays, setEndOfDay } from 'src/common/utils/date-utils';
 import { Types } from 'mongoose';
-// import { Type } from 'class-transformer';
 
 @Injectable()
 export class AnalyticsService {
@@ -14,7 +13,66 @@ export class AnalyticsService {
   constructor(
     @InjectModel(Analytics.name) private AnalyticsModel: Model<Analytics>,
   ) {}
+  protected getClickByDate(date: Date) {
+    return [
+      {
+        $match: {
+          createdAt: {
+            $gte: date,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          date: '$_id',
+          uniqueClicks: '$count',
+          _id: 0,
+        },
+      },
+    ];
+  }
+  protected getOsType() {
+    return [
+      {
+        $group: {
+          _id: '$osName',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          osName: '$_id',
+          uniqueClicks: '$count',
+          _id: 0,
+        },
+      },
+    ];
+  }
 
+  protected getDeviceType() {
+    return [
+      {
+        $group: {
+          _id: '$deviceName',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          deviceName: '$_id',
+          uniqueClicks: '$count',
+        },
+      },
+    ];
+  }
   async getUrlAnalyticsByAlias(alias: string) {
     const [totalClicks, analytics] = await Promise.all([
       this.AnalyticsModel.countDocuments({ alias }),
@@ -24,59 +82,9 @@ export class AnalyticsService {
         },
         {
           $facet: {
-            clickByDate: [
-              {
-                $match: {
-                  createdAt: {
-                    $gte: this.seventhDayBefore,
-                  },
-                },
-              },
-              {
-                $group: {
-                  _id: {
-                    $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
-                  },
-                  count: { $sum: 1 },
-                },
-              },
-              {
-                $project: {
-                  date: '$_id',
-                  uniqueClicks: '$count',
-                  _id: 0,
-                },
-              },
-            ],
-            osType: [
-              {
-                $group: {
-                  _id: '$osName',
-                  count: { $sum: 1 },
-                },
-              },
-              {
-                $project: {
-                  osName: '$_id',
-                  uniqueClicks: '$count',
-                  _id: 0,
-                },
-              },
-            ],
-            deviceType: [
-              {
-                $group: {
-                  _id: '$deviceName',
-                  count: { $sum: 1 },
-                },
-              },
-              {
-                $project: {
-                  deviceName: '$_id',
-                  uniqueClicks: '$count',
-                },
-              },
-            ],
+            clickByDate: this.getClickByDate(this.seventhDayBefore),
+            osType: this.getOsType(),
+            deviceType: this.getDeviceType(),
           },
         },
       ]),
@@ -101,32 +109,7 @@ export class AnalyticsService {
         },
         {
           $facet: {
-            clickByDate: [
-              {
-                $match: {
-                  createdAt: {
-                    $gte: this.seventhDayBefore,
-                  },
-                },
-              },
-              {
-                $group: {
-                  _id: {
-                    $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
-                  },
-                  count: { $sum: 1 },
-                },
-              },
-              {
-                $project: {
-                  date: '$_id',
-                  uniqueClicks: '$count',
-                },
-              },
-              {
-                $sort: { uniqueClicks: -1 },
-              },
-            ],
+            clickByDate: this.getClickByDate(this.seventhDayBefore),
             urls: [
               {
                 $group: {
@@ -185,55 +168,9 @@ export class AnalyticsService {
               $count: 'totalClicks',
             },
           ],
-          clickByDate: [
-            {
-              $match: {
-                createdAt: { $gte: this.seventhDayBefore },
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
-                },
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $project: {
-                date: '$_id',
-                totalClicks: '$count',
-              },
-            },
-          ],
-          osType: [
-            {
-              $group: {
-                _id: '$osName',
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $project: {
-                os: '$_id',
-                totalClicks: '$count',
-              },
-            },
-          ],
-          deviceType: [
-            {
-              $group: {
-                _id: '$deviceName',
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $project: {
-                deviceName: '$deviceName',
-                totalClicks: '$count',
-              },
-            },
-          ],
+          clickByDate: this.getClickByDate(this.seventhDayBefore),
+          osType: this.getOsType(),
+          deviceType: this.getDeviceType(),
         },
       },
       {
