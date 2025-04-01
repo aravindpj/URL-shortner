@@ -2,12 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
-// export interface UserMethods {
-//   checkPasswordIsCorrect(password: string): Promise<boolean>;
-// }
-
-// export type UserDocument = HydratedDocument<Users> & UserMethods;
-
 @Schema({ timestamps: true })
 export class Users extends Document {
   @Prop()
@@ -47,6 +41,7 @@ export class Users extends Document {
 export const UsersSchema = SchemaFactory.createForClass(Users);
 
 UsersSchema.pre('save', async function (next) {
+  //Prevents re-hashing an already hashed password on every save
   if (!this.isModified('password')) return next();
   const saltOrRounds = 10;
   this.password = await bcrypt.hash(this.password, saltOrRounds);

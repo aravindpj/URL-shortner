@@ -6,6 +6,7 @@ import { UrlService } from './url.service';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { ConfigModule } from 'src/config/config.module';
 import { AuthModule } from '../auth/auth.module';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { AuthModule } from '../auth/auth.module';
         schema: UrlSchema,
       },
     ]),
-
+    RedisModule,
     ConfigModule,
     AnalyticsModule,
     AuthModule,
