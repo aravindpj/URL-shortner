@@ -6,7 +6,10 @@ import { ExpressAdapter } from '@bull-board/express';
 import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const expressApp = app.getHttpAdapter().getInstance();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  expressApp.set('trust proxy', 1);
   // Get queue instances
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const analyticsQueue = app.get(`BullQueue_analytics`);

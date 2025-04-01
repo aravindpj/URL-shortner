@@ -8,6 +8,9 @@ import { Connection } from 'mongoose';
 import { BullModule } from '@nestjs/bull';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from './modules/redis/redis.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { TestController } from './app.controller';
 
 @Module({
   //When you import ConfigModule here, you're making its exports available to the entire application
@@ -64,10 +67,27 @@ import { RedisModule } from './modules/redis/redis.module';
       global: true,
       inject: [ConfigService],
     }),
+
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 1000 * 60,
+          limit: 10,
+        },
+      ],
+    }),
+
     RedisModule,
     UrlModule,
     AnalyticsModule,
     AuthModule,
+  ],
+  controllers: [TestController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
