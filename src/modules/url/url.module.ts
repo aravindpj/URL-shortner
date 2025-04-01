@@ -4,7 +4,6 @@ import { Url, UrlSchema } from './entities/url.entities';
 import { UrlController } from './url.controller';
 import { UrlService } from './url.service';
 import { AnalyticsModule } from '../analytics/analytics.module';
-import { ConfigModule } from 'src/config/config.module';
 import { AuthModule } from '../auth/auth.module';
 import { RedisModule } from '../redis/redis.module';
 
@@ -17,7 +16,6 @@ import { RedisModule } from '../redis/redis.module';
       },
     ]),
     RedisModule,
-    ConfigModule,
     AnalyticsModule,
     AuthModule,
   ],
