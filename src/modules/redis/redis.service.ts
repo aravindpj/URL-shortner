@@ -20,13 +20,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
 
     await this.redisClient.connect();
-
-    const counterExist = await this.redisClient.exists('url_counter');
-    if (!counterExist) {
-      await this.redisClient.set('url_counter', 0);
-    } else {
-      console.log('counter exist');
-    }
   }
   async onModuleDestroy() {
     if (this.redisClient) await this.redisClient.quit();

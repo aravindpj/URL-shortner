@@ -47,9 +47,8 @@ export class UrlService {
         shortId = this.generateNewId();
         const exist = await this.urlModel.findOne({ shortId: shortId });
 
-        if (!exist) {
-          break;
-        }
+        if (!exist) break;
+
         attempt++;
       }
     }

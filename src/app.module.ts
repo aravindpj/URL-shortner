@@ -10,7 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from './modules/redis/redis.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { TestController } from './app.controller';
 
 @Module({
   //When you import ConfigModule here, you're making its exports available to the entire application
@@ -82,7 +81,6 @@ import { TestController } from './app.controller';
     AnalyticsModule,
     AuthModule,
   ],
-  controllers: [TestController],
   providers: [
     {
       provide: APP_GUARD,
